@@ -2,20 +2,8 @@
   "version": 1,
   "group": "1734",
   "groupName": "К1F201ДОФ26",
-  "updatedAt": "2026-11-16T11:20:03.133Z",
+  "updatedAt": "2026-11-16T11:20:10.924Z",
   "items": [
-    {
-      "id": "06eb1bce-fb21-489e-bf00-0ba7d57654de",
-      "date": "2026-11-16",
-      "pair": 2,
-      "subject": "Основи медичних знань",
-      "task": "Jsshej",
-      "due": "2026-11-18",
-      "link": "",
-      "author": "",
-      "createdAt": "2026-11-16T11:10:04.018Z",
-      "updatedAt": "2026-11-16T11:10:04.018Z"
-    },
     {
       "id": "a7dc6240-cd59-4d38-99bc-c7b7d0e0746d",
       "date": "2026-11-17",
