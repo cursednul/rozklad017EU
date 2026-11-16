@@ -2,7 +2,7 @@
   "version": 1,
   "group": "1734",
   "groupName": "К1F201ДОФ26",
-  "updatedAt": "2026-11-16T11:42:25.248Z",
+  "updatedAt": "2026-11-16T11:53:44.675Z",
   "items": [
     {
       "id": "a7dc6240-cd59-4d38-99bc-c7b7d0e0746d",
@@ -15,6 +15,18 @@
       "author": "",
       "createdAt": "2026-11-16T11:18:10.932Z",
       "updatedAt": "2026-11-16T11:42:08.448Z"
+    },
+    {
+      "id": "68b53e62-6b63-4552-8c48-2656f99b68a2",
+      "date": "2026-11-18",
+      "pair": 1,
+      "subject": "Математика",
+      "task": "Практичні завдання\nрозв’язати;\nДо Математичного диктанту\nпідготуватись",
+      "due": "2026-11-18",
+      "link": "https://drive.google.com/file/d/1MAeSMRtJXjixQdlmITFVG0w4pYEFybOD/view?hl=ru",
+      "author": "",
+      "createdAt": "2026-11-16T11:53:41.299Z",
+      "updatedAt": "2026-11-16T11:53:41.299Z"
     },
     {
       "id": "08aa3bad-ac9b-4ed8-b271-a51528bd6a3c",
