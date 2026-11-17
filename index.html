@@ -366,6 +366,9 @@ h2{
 @media(min-width:860px){
   .days{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
 }
+@media(min-width:1080px){
+  .days{grid-template-columns:repeat(4,minmax(0,1fr));align-items:start}
+}
 .day-card.is-today{
   border-color:var(--active-line);
   box-shadow:0 1px 2px #2a241a0a,0 18px 40px -30px #1f5c3a80,inset 0 0 0 1px var(--active-line);
@@ -410,8 +413,7 @@ h2{
 }
 .lessons{padding:0 20px}
 .lesson{
-  display:grid;grid-template-columns:96px minmax(0,1fr) auto;align-items:center;
-  gap:18px;padding:16px 0;border-bottom:1px solid var(--line);
+  display:block;padding:16px 0;border-bottom:1px solid var(--line);
   transition:background .2s,box-shadow .2s;
 }
 .lesson:last-child{border-bottom:0}
@@ -424,10 +426,10 @@ h2{
   color:var(--muted);font-family:var(--font-mono);font-size:12.5px;
   font-variant-numeric:tabular-nums;font-weight:600;line-height:1.4;
 }
-.lesson-number{margin-top:3px;font-family:var(--font-ui);font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);opacity:.85}
-.lesson-name{font-weight:700;font-size:14.5px;line-height:1.4;letter-spacing:-.005em}
+.lesson-number{display:inline;margin:0 0 0 6px;font-family:var(--font-ui);font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);opacity:.85}
+.lesson-name{font-weight:700;font-size:14.5px;line-height:1.4;letter-spacing:-.005em;margin-top:4px}
 .lesson-detail{color:var(--muted);font-size:12px;margin-top:3px;line-height:1.5}
-.lesson-actions{display:flex;align-items:center;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.lesson-actions{display:flex;align-items:center;gap:8px;justify-content:flex-start;flex-wrap:wrap;margin-top:8px}
 .lesson-actions:empty{display:none}
 .room-badge{
   padding:3px 8px;border:1px solid var(--line);border-radius:7px;
@@ -521,11 +523,11 @@ h2{
   .day-head .day-count{font-size:10px;padding:3px 8px}
 
   .lessons{padding:0 14px}
-  .lesson{grid-template-columns:74px minmax(0,1fr);gap:10px;padding:14px 0}
+  .lesson{padding:14px 0}
   .lesson.is-current{margin-inline:-14px;padding-inline:14px}
   .lesson-time{font-size:11.5px}
   .lesson-name{font-size:14px}
-  .lesson-actions{grid-column:2;justify-content:flex-start;flex-wrap:wrap;gap:7px;margin-top:7px}
+  .lesson-actions{justify-content:flex-start;flex-wrap:wrap;gap:7px;margin-top:7px}
   .empty-day{padding:20px 14px;font-size:12.5px}
   .footer{font-size:10.5px;margin-top:20px}
 }
@@ -575,9 +577,9 @@ h2{
 }
 .days.export-layout .lesson-time{font-size:10px;margin-bottom:3px}
 .days.export-layout .lesson-number{display:inline;margin-left:5px;font-size:9px}
-.days.export-layout .lesson-name{font-size:12px;line-height:1.35;overflow-wrap:anywhere}
+.days.export-layout .lesson-name{font-size:12px;line-height:1.35;overflow-wrap:anywhere;margin-top:0}
 .days.export-layout .lesson-detail{font-size:10px;overflow-wrap:anywhere;display:inline}
-.days.export-layout .lesson-actions{display:inline-flex;margin-left:4px;vertical-align:middle}
+.days.export-layout .lesson-actions{display:inline-flex;margin-left:4px;margin-top:0;vertical-align:middle}
 .days.export-layout .zoom-link,.days.export-layout .btn-icon{display:none!important}
 .days.export-layout .room-badge{font-size:9px;padding:1px 5px}
 .days.export-layout .empty-day{padding:12px;font-size:11px}
@@ -1442,6 +1444,8 @@ init();
   let fallbackUrl = null;
   let observer = null;
   let decorateTimer = 0;
+  let modalHost = null;
+  let lastFocus = null;
 
   function esc(value) {
     return String(value ?? '').replace(/[&<>"']/g, (c) => ({
@@ -1451,6 +1455,10 @@ init();
 
   function isHttp(value) {
     return /^https?:\/\/\S+$/i.test(String(value || '').trim());
+  }
+
+  function openAttrs(item) {
+    return ` data-hw-open="${esc(item.id)}" role="button" tabindex="0" title="Відкрити повне завдання"`;
   }
 
   function todayKey() {
@@ -1534,7 +1542,8 @@ init();
       .hw-summary-date b{display:block;color:var(--text);font-size:12.5px}
       .hw-summary-body{min-width:0}
       .hw-summary-subject{font-size:13px;font-weight:750;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      .hw-summary-task{margin-top:2px;color:var(--muted);font-size:11.5px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .hw-summary-task{margin-top:2px;color:var(--muted);font-size:11.5px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+      .hw-summary-task:hover{color:var(--accent)}
       .hw-summary-due{color:var(--amber);font-size:10.5px;font-weight:750;white-space:nowrap}
       .hw-summary-empty{padding:8px 2px 2px;color:var(--muted);font-size:12.5px}
       .hw-summary-more{margin-top:10px;color:var(--muted);font-size:11.5px}
@@ -1546,8 +1555,52 @@ init();
       }
       .hw-block.general{margin:10px 0 0}
       .hw-label{font-size:8.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:3px}
-      .hw-text{color:var(--text);white-space:pre-wrap;overflow-wrap:anywhere}
+      .hw-text{
+        color:var(--text);white-space:pre-wrap;overflow-wrap:anywhere;
+        display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+        overflow:hidden;text-overflow:ellipsis;cursor:pointer;
+      }
+      .hw-text:hover{color:var(--accent)}
       .hw-meta{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-top:4px;color:var(--muted);font-size:10.5px}
+      .hw-text[data-hw-open]:focus-visible,
+      .hw-summary-task[data-hw-open]:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+      /* ---- повне завдання ---- */
+      .hw-modal-backdrop{
+        position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;
+        padding:18px;background:#0b0d08c4;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
+      }
+      .hw-modal-backdrop.is-open{display:flex}
+      .hw-modal{
+        width:min(680px,100%);max-height:min(84vh,760px);overflow:auto;
+        padding:22px;border:1px solid var(--line,#e3dccd);border-radius:18px;
+        background:var(--surface,#fffdf8);color:var(--text,#1c1a17);
+        box-shadow:0 30px 80px -30px #000c;
+      }
+      .hw-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+      .hw-modal-eyebrow{font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--amber,#a95a10);margin-bottom:4px}
+      .hw-modal-subject{margin:0;font-family:var(--font-ui,inherit);font-size:20px;line-height:1.25;font-weight:750;letter-spacing:-.01em}
+      .hw-modal-close{
+        flex:none;width:34px;height:34px;border:1px solid var(--line,#e3dccd);border-radius:9px;
+        background:var(--surface-soft,#f8f3e9);color:var(--muted,#6d675c);
+        font-size:20px;line-height:1;display:grid;place-items:center;cursor:pointer;
+      }
+      .hw-modal-close:hover{color:var(--text);border-color:var(--line-strong,#cec4b2)}
+      .hw-modal-meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+      .hw-modal-pill{padding:3px 8px;border:1px solid var(--line,#e3dccd);border-radius:999px;background:var(--surface-soft,#f8f3e9);color:var(--muted,#6d675c);font-size:10.5px;font-weight:700}
+      .hw-modal-pill.overdue{color:var(--err,#b42318);border-color:var(--err-line,#f0c7c2);background:var(--err-soft,#fdf0ee)}
+      .hw-modal-task{
+        margin-top:16px;padding-top:15px;border-top:1px solid var(--line,#e3dccd);
+        font-size:14px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;
+      }
+      .hw-modal-foot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px;padding-top:13px;border-top:1px solid var(--line,#e3dccd);color:var(--muted,#6d675c);font-size:11.5px}
+      .hw-modal-foot a{color:var(--accent,#1f5c3a);font-weight:750;text-decoration:none}
+      .hw-modal-foot a:hover{text-decoration:underline;text-underline-offset:2px}
+      body.hw-modal-open{overflow:hidden}
+      @media(max-width:560px){
+        .hw-modal{padding:18px;border-radius:15px}
+        .hw-modal-subject{font-size:18px}
+      }
       .hw-meta a{color:var(--accent);font-weight:750;text-decoration:none}
       .hw-meta a:hover{text-decoration:underline;text-underline-offset:2px}
       .hw-due{font-weight:750;color:var(--amber)}
@@ -1705,7 +1758,7 @@ init();
         <span class="hw-summary-date"><b>${esc(fmtShort(item.date))}</b>${item.pair ? `${item.pair} пара` : 'без пари'}</span>
         <span class="hw-summary-body">
           <span class="hw-summary-subject">${esc(item.subject)}</span>
-          <span class="hw-summary-task">${esc(item.task)}</span>
+          <span class="hw-summary-task"${openAttrs(item)}>${esc(item.task)}</span>
         </span>
         ${due ? `<span class="hw-summary-due">${esc(due)}</span>` : ''}
       </${tag}>`;
@@ -1736,7 +1789,7 @@ init();
 
     return `<div class="hw-block${general ? ' general' : ''}">
       <div class="hw-label">Домашнє завдання${item.pair ? ` · ${item.pair} пара` : ''}</div>
-      <div class="hw-text">${esc(item.task)}</div>
+      <div class="hw-text"${openAttrs(item)}>${esc(item.task)}</div>
       ${due || link || author ? `<div class="hw-meta">${due}${link}${author}</div>` : ''}
     </div>`;
   }
@@ -1791,6 +1844,88 @@ init();
     });
   }
 
+  /* ---------- повне завдання ---------- */
+
+  function ensureModal() {
+    if (modalHost) return modalHost;
+
+    modalHost = document.createElement('div');
+    modalHost.className = 'hw-modal-backdrop';
+    modalHost.id = 'hwModal';
+    modalHost.setAttribute('role', 'dialog');
+    modalHost.setAttribute('aria-modal', 'true');
+    modalHost.setAttribute('aria-hidden', 'true');
+    modalHost.innerHTML = `
+      <div class="hw-modal" role="document">
+        <div class="hw-modal-head">
+          <div>
+            <div class="hw-modal-eyebrow">Домашнє завдання</div>
+            <h3 class="hw-modal-subject" id="hwModalSubject"></h3>
+          </div>
+          <button class="hw-modal-close" id="hwModalClose" type="button" aria-label="Закрити">×</button>
+        </div>
+        <div class="hw-modal-meta" id="hwModalMeta"></div>
+        <div class="hw-modal-task" id="hwModalTask"></div>
+        <div class="hw-modal-foot" id="hwModalFoot"></div>
+      </div>`;
+
+    modalHost.addEventListener('click', (event) => {
+      if (event.target === modalHost || (event.target.closest && event.target.closest('#hwModalClose'))) {
+        closeModal();
+      }
+    });
+    document.body.appendChild(modalHost);
+    return modalHost;
+  }
+
+  function openHomework(id) {
+    const item = items.find((x) => String(x.id) === String(id));
+    if (!item) return;
+
+    const host = ensureModal();
+    lastFocus = document.activeElement;
+
+    const date = parseDate(item.date);
+    const dateLabel = date
+      ? `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`
+      : item.date;
+    const today = todayKey();
+    const dueClass = item.due && item.due < today ? ' overdue' : '';
+    const dueText = item.due
+      ? (item.due < today ? `Прострочено: ${fmtShort(item.due)}` : `Дедлайн: ${fmtShort(item.due)}`)
+      : '';
+    const author = item.author ? `<span class="hw-modal-pill">${esc(item.author)}</span>` : '';
+    const link = item.link
+      ? `<a href="${esc(item.link)}" target="_blank" rel="noopener noreferrer">Відкрити посилання ↗</a>`
+      : '';
+
+    host.querySelector('#hwModalSubject').textContent = item.subject;
+    host.querySelector('#hwModalMeta').innerHTML = `
+      <span class="hw-modal-pill">${esc(dateLabel)}</span>
+      <span class="hw-modal-pill">${item.pair ? `${item.pair} пара` : 'без пари'}</span>
+      ${item.due ? `<span class="hw-modal-pill${dueClass}">${esc(dueText)}</span>` : ''}
+      ${author}`;
+    host.querySelector('#hwModalTask').textContent = item.task;
+    host.querySelector('#hwModalFoot').innerHTML = link
+      ? link
+      : '<span>Натисни поза вікном або на ×, щоб закрити.</span>';
+
+    host.classList.add('is-open');
+    host.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('hw-modal-open');
+    const close = host.querySelector('#hwModalClose');
+    setTimeout(() => { if (close && typeof close.focus === 'function') close.focus(); }, 30);
+  }
+
+  function closeModal() {
+    if (!modalHost) return;
+    modalHost.classList.remove('is-open');
+    modalHost.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('hw-modal-open');
+    if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+    lastFocus = null;
+  }
+
   function scheduleDecorate() {
     clearTimeout(decorateTimer);
     decorateTimer = setTimeout(() => {
@@ -1821,6 +1956,13 @@ init();
 
   // Клік по панелі — делегування, бо панель перемальовується.
   document.addEventListener('click', (event) => {
+    const opener = event.target.closest && event.target.closest('[data-hw-open]');
+    if (opener) {
+      event.preventDefault();
+      openHomework(opener.getAttribute('data-hw-open'));
+      return;
+    }
+
     const link = event.target.closest('#rozkladHomeworkSummary a[href^="#day-"]');
     if (!link) return;
     const target = document.querySelector(link.getAttribute('href'));
@@ -1829,6 +1971,18 @@ init();
     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     target.classList.add('hw-flash');
     setTimeout(() => target.classList.remove('hw-flash'), 1800);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && modalHost && modalHost.classList.contains('is-open')) {
+      closeModal();
+      return;
+    }
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    const opener = event.target.closest && event.target.closest('[data-hw-open]');
+    if (!opener) return;
+    event.preventDefault();
+    openHomework(opener.getAttribute('data-hw-open'));
   });
 
   window.__ROZKLAD_HOMEWORK__ = {
