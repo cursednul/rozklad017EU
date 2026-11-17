@@ -1428,8 +1428,10 @@ init();
 
   const REFRESH_MS = 5 * 60 * 1000;
   const STALE_MS = 60 * 1000;
-  const FALLBACK_REPO = 'rozklad-k1f201dof26-homework';
-  const LS_FALLBACK = 'rozklad-hw-fallback-source-v1';
+  const FALLBACK_OWNER = 'cursednul';
+  const FALLBACK_REPO = 'rozklad017EU';
+  const FALLBACK_FULL = FALLBACK_OWNER + '/' + FALLBACK_REPO;
+  const LS_FALLBACK = 'rozklad-hw-fallback-source-v2';
   const FALLBACK_TTL = 6 * 60 * 60 * 1000;
   const MONTH = ['січ', 'лют', 'бер', 'кві', 'тра', 'чер', 'лип', 'сер', 'вер', 'жов', 'лис', 'гру'];
 
@@ -1492,7 +1494,7 @@ init();
       else pair = Number(pair);
       if (!Number.isFinite(pair) || pair < 1 || pair > 8) pair = null;
 
-      const dueRaw = String(raw.due || '').slice(0, 10);
+      // Дата заняття є дедлайном; поле due у файлі може бути відсутнім.
       const linkRaw = String(raw.link || '').trim();
 
       return {
@@ -1501,7 +1503,7 @@ init();
         pair,
         subject: String(raw.subject || '').trim() || 'Загальне',
         task,
-        due: /^\d{4}-\d{2}-\d{2}$/.test(dueRaw) ? dueRaw : '',
+        due: date,
         link: isHttp(linkRaw) ? linkRaw : '',
         author: String(raw.author || '').trim(),
       };
@@ -1605,8 +1607,12 @@ init();
     if (!res.ok) throw new Error('GitHub search HTTP ' + res.status);
 
     const data = await res.json();
-    const repo = (data.items || []).find((x) => x && String(x.name || '').toLowerCase() === FALLBACK_REPO && !x.fork);
-    if (!repo) throw new Error('Репозиторій ' + FALLBACK_REPO + ' ще не створено');
+    const wanted = FALLBACK_FULL.toLowerCase();
+    const repo = (data.items || []).find((x) => x && !x.fork
+      && String(x.full_name || '').toLowerCase() === wanted)
+      || (data.items || []).find((x) => x && !x.fork
+        && String(x.name || '').toLowerCase() === FALLBACK_REPO.toLowerCase());
+    if (!repo) throw new Error('Репозиторій ' + FALLBACK_FULL + ' ще не створено');
 
     fallbackUrl = `https://raw.githubusercontent.com/${repo.full_name}/${repo.default_branch || 'main'}/homework.json`;
     try {
@@ -1829,7 +1835,7 @@ init();
     normalizeItems,
     fmtShort,
     todayKey,
-    fallbackRepo: FALLBACK_REPO,
+    fallbackRepo: FALLBACK_FULL,
     decorate,
     renderSummary,
     load,
