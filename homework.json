@@ -2,7 +2,7 @@
   "version": 1,
   "group": "1734",
   "groupName": "К1F201ДОФ26",
-  "updatedAt": "2026-11-16T11:53:44.675Z",
+  "updatedAt": "2026-11-19T12:54:53.596Z",
   "items": [
     {
       "id": "a7dc6240-cd59-4d38-99bc-c7b7d0e0746d",
@@ -39,6 +39,18 @@
       "author": "",
       "createdAt": "2026-11-16T11:32:12.349Z",
       "updatedAt": "2026-11-16T11:32:12.349Z"
+    },
+    {
+      "id": "faf51817-5d9a-4e8a-a7d9-691511c585ce",
+      "date": "2026-11-20",
+      "pair": 2,
+      "subject": "Історія: Україна і світ",
+      "task": "Підготуватися до Тестів по презентаціях всіх груп",
+      "due": "2026-11-20",
+      "link": "https://drive.google.com/drive/folders/1-368PHjOp5sJ7pz5bt_pceKFtCVGkYH76PUzcp7ze-JtQo5OU_3GSZpeScbJz2lvYfcrIQ4g",
+      "author": "",
+      "createdAt": "2026-11-19T12:54:48.408Z",
+      "updatedAt": "2026-11-19T12:54:48.408Z"
     }
   ]
 }
